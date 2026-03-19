@@ -4,6 +4,7 @@ import os
 
 class JobsSpider(scrapy.Spider):
     name = 'jobs'
+    allowed_domains = ['rozee.pk']
 
     def start_requests(self):
         # The spider is run from the scrapy_project directory

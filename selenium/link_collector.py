@@ -1,7 +1,11 @@
 import csv
 import time
 import os
+from pathlib import Path
 from selenium import webdriver
+
+# Resolve data directory relative to this script, not the working directory
+BASE_DIR = Path(__file__).parent.parent
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
@@ -93,4 +97,4 @@ def save_to_csv(links, filename):
 
 if __name__ == "__main__":
     links = collect_rozee_links(search_query="Software Engineer", max_links=30)
-    save_to_csv(links, "../data/raw/job_links.csv")
+    save_to_csv(links, str(BASE_DIR / "data" / "raw" / "job_links.csv"))

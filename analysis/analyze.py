@@ -1,9 +1,13 @@
 import pandas as pd
 import re
 import os
+from pathlib import Path
+
+# Resolve paths relative to this script so it works from any working directory
+BASE_DIR = Path(__file__).parent.parent
 
 def analyze_jobs():
-    file_path = '../data/final/jobs.csv'
+    file_path = BASE_DIR / 'data' / 'final' / 'jobs.csv'
     if not os.path.exists(file_path):
         print(f"Error: {file_path} not found.")
         return
@@ -46,8 +50,8 @@ def analyze_jobs():
     titles = df['Job title'].fillna('Unknown').value_counts().head(5)
 
     # Generate Markdown Report
-    os.makedirs('../docs', exist_ok=True)
-    with open('../docs/report.md', 'w') as f:
+    os.makedirs(BASE_DIR / 'docs', exist_ok=True)
+    with open(BASE_DIR / 'docs' / 'report.md', 'w') as f:
         f.write("# Rozee.pk Job Market Analysis Report\n\n")
         f.write("## Overview\n")
         f.write(f"Analyzed {len(df)} job postings from Rozee.pk.\n\n")
@@ -76,7 +80,7 @@ def analyze_jobs():
             f.write(f"- {title}: {count} posings\n")
         f.write("\n")
 
-    print("Analysis saved to ../docs/report.md")
+    print(f"Analysis saved to {BASE_DIR / 'docs' / 'report.md'}")
 
 if __name__ == "__main__":
     analyze_jobs()
