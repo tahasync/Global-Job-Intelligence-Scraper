@@ -3,98 +3,112 @@ import time
 import os
 from pathlib import Path
 from selenium import webdriver
-
-# Resolve data directory relative to this script, not the working directory
-BASE_DIR = Path(__file__).parent.parent
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-def collect_rozee_links(search_query="Software Engineer", max_links=50):
-    # Setup Chrome options
+# Resolve data directory relative to this script
+BASE_DIR = Path(__file__).parent.parent
+DATA_PATH = BASE_DIR / "data" / "raw" / "job_links.csv"
+
+def get_driver():
     options = webdriver.ChromeOptions()
-    # options.add_argument('--headless') # Uncomment for headless mode if needed
+    options.add_argument('--headless') # Run in headless mode for efficiency
     options.add_argument('--disable-gpu')
     options.add_argument('--window-size=1920,1080')
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
-    
-    # Initialize the driver
-    driver = webdriver.Chrome(options=options)
-    
-    # Encode the search query
-    query_encoded = search_query.replace(' ', '+')
-    search_url = f"https://www.rozee.pk/job/jsearch/q/{query_encoded}"
-    
-    print(f"Navigating to {search_url}")
-    driver.get(search_url)
-    
-    # Wait for the job listings container to load
-    wait = WebDriverWait(driver, 10)
-    try:
-        wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "div.job")))
-    except Exception as e:
-        print("Timeout waiting for job listings. Page source might be different.")
-        # Proceed anyway to see if we can find links
-        
-    job_links = set()
-    last_height = driver.execute_script("return document.body.scrollHeight")
-    
-    while len(job_links) < max_links:
-        # Extract links on current view
-        links = driver.find_elements(By.TAG_NAME, "a")
-        
-        for link in links:
-            href = link.get_attribute('href')
-            if href and 'rozee.pk' in href and '-jobs-' in href:
-                # Remove tracking queries
-                clean_href = href.split('?')[0]
-                job_links.add(clean_href)
-                if len(job_links) >= max_links:
-                    break
-                    
-        print(f"Collected {len(job_links)} links so far...")
-                
-        if len(job_links) >= max_links:
-            break
-            
-        # Scroll down
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        time.sleep(2)
-        
-        # Rozee typically has pagination. Let's look for a 'next' button if scrolling doesn't load more
-        new_height = driver.execute_script("return document.body.scrollHeight")
-        if new_height == last_height:
-            # Try to click next page
-            try:
-                next_button = driver.find_element(By.XPATH, "//a[contains(@class, 'next') or contains(text(), 'Next')]")
-                if next_button:
-                    driver.execute_script("arguments[0].click();", next_button)
-                    time.sleep(3)
-                else:
-                    print("Reached the end of results.")
-                    break
-            except Exception:
-                print("No next page button found.")
-                break
-        last_height = new_height
+    return webdriver.Chrome(options=options)
 
-    driver.quit()
+def collect_rozee_links(driver, max_links=10):
+    print("Collecting from Rozee.pk...")
+    search_url = "https://www.rozee.pk/job/jsearch/q/Software+Engineer"
+    driver.get(search_url)
+    time.sleep(3)
     
-    print(f"Total links collected: {len(job_links)}")
+    job_links = set()
+    # Basic scroll to trigger any lazy loading
+    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    time.sleep(2)
+    
+    links = driver.find_elements(By.TAG_NAME, "a")
+    for link in links:
+        href = link.get_attribute('href')
+        if href and 'rozee.pk' in href and '-jobs-' in href:
+            clean_href = href.split('?')[0]
+            job_links.add(clean_href)
+            if len(job_links) >= max_links:
+                break
     return list(job_links)
 
-def save_to_csv(links, filename):
-    # Ensure directory exists
-    os.makedirs(os.path.dirname(filename), exist_ok=True)
-    with open(filename, 'w', newline='', encoding='utf-8') as f:
+def collect_lever_links(driver, company_url, max_links=10):
+    print(f"Collecting from Lever: {company_url}")
+    driver.get(company_url)
+    time.sleep(4)
+    links = driver.find_elements(By.CSS_SELECTOR, "a.posting-title")
+    job_urls = [link.get_attribute('href') for link in links if 'jobs.lever.co' in link.get_attribute('href')]
+    return job_urls[:max_links]
+
+def collect_greenhouse_links(driver, company_url, max_links=10):
+    print(f"Collecting from Greenhouse: {company_url}")
+    driver.get(company_url)
+    time.sleep(4)
+    # Greenhouse links often in .opening or specific page structure
+    links = driver.find_elements(By.CSS_SELECTOR, "div.opening a, a[data-mapped='true']")
+    job_urls = []
+    for link in links:
+        href = link.get_attribute('href')
+        if href and ('boards.greenhouse.io' in href or 'jobs' in href):
+            # Resolve relative links if necessary (handled by get_attribute('href') usually)
+            job_urls.append(href)
+    
+    # Fallback for redirected pages like Dropbox
+    if not job_urls:
+         links = driver.find_elements(By.TAG_NAME, "a")
+         job_urls = [l.get_attribute('href') for l in links if l.get_attribute('href') and ('/jobs/' in l.get_attribute('href') or '/opening/' in l.get_attribute('href'))]
+
+    return list(set(job_urls))[:max_links]
+
+def main():
+    sources = [
+        {"name": "Rozee.pk", "type": "rozee"},
+        {"name": "Discord", "url": "https://boards.greenhouse.io/discord", "type": "greenhouse"},
+        {"name": "Palantir", "url": "https://jobs.lever.co/palantir", "type": "lever"},
+        {"name": "Figma", "url": "https://www.figma.com/careers/", "type": "greenhouse"},
+        {"name": "Elastic", "url": "https://boards.greenhouse.io/elastic", "type": "greenhouse"},
+    ]
+
+    all_links = []
+    driver = get_driver()
+
+    try:
+        for source in sources:
+            try:
+                if source["type"] == "rozee":
+                    links = collect_rozee_links(driver)
+                elif source["type"] == "lever":
+                    links = collect_lever_links(driver, source["url"])
+                elif source["type"] == "greenhouse":
+                    links = collect_greenhouse_links(driver, source["url"])
+                
+                print(f"Found {len(links)} links for {source['name']}")
+                all_links.extend(links)
+            except Exception as e:
+                print(f"Error collecting from {source['name']}: {e}")
+
+    finally:
+        driver.quit()
+
+    # Save to CSV
+    os.makedirs(os.path.dirname(DATA_PATH), exist_ok=True)
+    with open(DATA_PATH, 'w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
         writer.writerow(['job_url'])
-        for link in links:
+        for link in all_links:
             writer.writerow([link])
-    print(f"Saved to {filename}")
+    
+    print(f"\nSuccessfully collected {len(all_links)} total links.")
+    print(f"Results saved to {DATA_PATH}")
 
 if __name__ == "__main__":
-    links = collect_rozee_links(search_query="Software Engineer", max_links=30)
-    save_to_csv(links, str(BASE_DIR / "data" / "raw" / "job_links.csv"))
+    main()

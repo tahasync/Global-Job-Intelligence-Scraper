@@ -1,15 +1,15 @@
-# 🚀 Rozee.pk Job Intelligence Scraper
+# 🚀 Global Job Intelligence Scraper (Multi-Source)
 
-An end-to-end data pipeline designed to automate job discovery and market intelligence for the software engineering sector in Pakistan. This project combines browser automation and high-performance crawling to generate actionable career insights.
+An end-to-end data pipeline designed to automate job discovery and market intelligence across multiple global career portals. This project utilizes a hybrid Selenium-Scrapy architecture to target 5 diverse job sources.
 
 ---
 
 ## 🌟 Key Features
 
-- **Hybrid Extraction**: Utilizes **Selenium** for dynamic link discovery and **Scrapy** for high-performance data extraction.
-- **Intelligent Parsing**: Extracts data via DOM selectors and `application/ld+json` (JSON-LD) for maximum accuracy.
-- **Robust Networking**: Includes a built-in fix for tracking redirects and TLS fingerprinting issues.
-- **Automated Analysis**: Generates comprehensive market reports using **Pandas**, highlighting top skills, cities, and hiring trends.
+- **Multi-Source Hybrid Extraction**: Targets 5 diverse career portals (**Rozee.pk**, **Discord**, **Palantir**, **Figma**, **Elastic**).
+- **Universal ATS Support**: Generalized to handle **Lever** and **Greenhouse** platforms alongside custom scrapers.
+- **Intelligent Parsing**: Primarily utilizes `application/ld+json` (JSON-LD) for high-accuracy extraction with CSS fallbacks.
+- **Automated Analysis**: Generates comprehensive market reports using **Pandas**, highlighting top skills and hiring trends across all sources.
 
 ---
 
