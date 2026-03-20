@@ -16,7 +16,7 @@ An end-to-end data pipeline designed to automate job discovery and market intell
 ## 🛠️ Project Architecture
 
 ```text
-rozee_scraper/
+Global Job Intelligence Scraper/
 ├── selenium/            # Phase 1: Browser automation for URL discovery
 │   └── link_collector.py
 ├── scrapy_project/      # Phase 2: High-concurrency job data extraction
@@ -57,7 +57,7 @@ The pipeline is executed in three logical phases:
 
 #### **Phase 1: Discovery (Selenium)**
 
-Collect job URLs from Rozee.pk search results.
+Collect job URLs from 5 diverse global sources.
 
 ```bash
 uv run python selenium/link_collector.py
