@@ -1,4 +1,4 @@
-# 🚀 Global Job Intelligence Scraper (Multi-Source)
+# 🚀 Global Job Intelligence Scraper
 
 An end-to-end data pipeline designed to automate job discovery and market intelligence across multiple global career portals. This project utilizes a hybrid Selenium-Scrapy architecture to target 5 diverse job sources.
 
