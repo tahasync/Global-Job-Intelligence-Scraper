@@ -70,7 +70,7 @@ Crawl individual job pages and parse details.
 
 ```bash
 cd scrapy_project
-uv run scrapy crawl jobs -o ../data/final/jobs.csv
+uv run python -m scrapy crawl jobs -o ../data/final/jobs.csv
 ```
 
 #### **Phase 3: Intelligence (Pandas)**
