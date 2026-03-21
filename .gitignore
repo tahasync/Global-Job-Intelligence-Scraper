@@ -8,3 +8,9 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Unnecessary files
+ASSIGNMENT_STATUS.md
+*.docx
+.python-version
+uv.lock
