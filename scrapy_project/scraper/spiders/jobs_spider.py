@@ -20,12 +20,24 @@ class JobsSpider(scrapy.Spider):
                 url = row['job_url']
                 yield scrapy.Request(url, callback=self.parse)
 
+    def _get_source(self, url):
+        if 'rozee.pk' in url: return 'Rozee.pk'
+        if 'discord' in url: return 'Discord'
+        if 'palantir' in url: return 'Palantir'
+        if 'figma' in url: return 'Figma'
+        if 'github' in url: return 'Github'
+        if 'mustakbil' in url: return 'Mustakbil'
+        if 'netflix' in url: return 'Netflix'
+        if 'dropbox' in url: return 'Dropbox'
+        return 'Other'
+
     def parse(self, response):
         from w3lib.html import remove_tags
         import json
         
         item = {
             'Job URL': response.url,
+            'Source': self._get_source(response.url),
             'Job title': '', 'Company name': '', 'Location': '',
             'Job description': '', 'Required skills': '',
             'Employment type': 'N/A', 'Department / team': 'N/A', 'Posted date': 'N/A'

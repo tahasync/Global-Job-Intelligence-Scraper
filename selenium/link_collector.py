@@ -41,41 +41,70 @@ def collect_rozee_links(driver, max_links=10):
                 break
     return list(job_links)
 
-def collect_lever_links(driver, company_url, max_links=10):
-    print(f"Collecting from Lever: {company_url}")
-    driver.get(company_url)
-    time.sleep(4)
-    links = driver.find_elements(By.CSS_SELECTOR, "a.posting-title")
-    job_urls = [link.get_attribute('href') for link in links if 'jobs.lever.co' in link.get_attribute('href')]
-    return job_urls[:max_links]
+def collect_ats_links(driver, url, max_links=10):
+    print(f"Collecting from ATS: {url}")
+    driver.get(url)
+    
+    try:
+        # Wait for at least one <a> tag to be present
+        WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.TAG_NAME, "a")))
+    except:
+        print(f"Wait timeout for {url}")
 
-def collect_greenhouse_links(driver, company_url, max_links=10):
-    print(f"Collecting from Greenhouse: {company_url}")
-    driver.get(company_url)
-    time.sleep(4)
-    # Greenhouse links often in .opening or specific page structure
-    links = driver.find_elements(By.CSS_SELECTOR, "div.opening a, a[data-mapped='true']")
+    time.sleep(5)
+    
+    # Scroll multiple times to handle lazy loading
+    for _ in range(3):
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(2)
+    
+    links = driver.find_elements(By.TAG_NAME, "a")
+    job_urls = []
+    print(f"Total raw links found on {url}: {len(links)}")
+    
+    for link in links:
+        try:
+            href = link.get_attribute('href')
+            if not href: continue
+            
+            # Robust filtering for direct job postings
+            # Greenhouse: gh_jid or /jobs/ with digits
+            # Lever: /jobs.lever.co/company/abc-123
+            # Ashby: /ashbyhq.com/company/abc-123
+            is_job = (('boards.greenhouse.io' in href and '/jobs/' in href and any(char.isdigit() for char in href.rstrip('/').split('/')[-1])) or ('gh_jid=' in href)) or \
+                     ('lever.co' in href and len(href.rstrip('/').split('/')) >= 5) or \
+                     ('ashbyhq.com' in href and len(href.rstrip('/').split('/')) >= 5)
+            
+            if is_job:
+                job_urls.append(href)
+        except:
+            continue
+
+    return list(set(job_urls))[:max_links]
+
+def collect_mustakbil_links(driver, max_links=10):
+    url = "https://www.mustakbil.com/jobs/software-engineer"
+    print(f"Collecting from Mustakbil: {url}")
+    driver.get(url)
+    time.sleep(5)
+    
+    links = driver.find_elements(By.TAG_NAME, "a")
     job_urls = []
     for link in links:
-        href = link.get_attribute('href')
-        if href and ('boards.greenhouse.io' in href or 'jobs' in href):
-            # Resolve relative links if necessary (handled by get_attribute('href') usually)
-            job_urls.append(href)
-    
-    # Fallback for redirected pages like Dropbox
-    if not job_urls:
-         links = driver.find_elements(By.TAG_NAME, "a")
-         job_urls = [l.get_attribute('href') for l in links if l.get_attribute('href') and ('/jobs/' in l.get_attribute('href') or '/opening/' in l.get_attribute('href'))]
-
+        try:
+            href = link.get_attribute('href')
+            if href and 'mustakbil.com/job/' in href:
+                job_urls.append(href)
+        except: continue
     return list(set(job_urls))[:max_links]
 
 def main():
     sources = [
         {"name": "Rozee.pk", "type": "rozee"},
-        {"name": "Discord", "url": "https://boards.greenhouse.io/discord", "type": "greenhouse"},
-        {"name": "Palantir", "url": "https://jobs.lever.co/palantir", "type": "lever"},
-        {"name": "Figma", "url": "https://www.figma.com/careers/", "type": "greenhouse"},
-        {"name": "Elastic", "url": "https://boards.greenhouse.io/elastic", "type": "greenhouse"},
+        {"name": "Discord", "url": "https://boards.greenhouse.io/discord", "type": "ats"},
+        {"name": "Palantir", "url": "https://jobs.lever.co/palantir", "type": "ats"},
+        {"name": "Figma", "url": "https://www.figma.com/careers/", "type": "ats"},
+        {"name": "Mustakbil", "type": "mustakbil"},
     ]
 
     all_links = []
@@ -86,10 +115,10 @@ def main():
             try:
                 if source["type"] == "rozee":
                     links = collect_rozee_links(driver)
-                elif source["type"] == "lever":
-                    links = collect_lever_links(driver, source["url"])
-                elif source["type"] == "greenhouse":
-                    links = collect_greenhouse_links(driver, source["url"])
+                elif source["type"] == "mustakbil":
+                    links = collect_mustakbil_links(driver)
+                else:
+                    links = collect_ats_links(driver, source["url"])
                 
                 print(f"Found {len(links)} links for {source['name']}")
                 all_links.extend(links)

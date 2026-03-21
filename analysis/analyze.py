@@ -6,6 +6,27 @@ from pathlib import Path
 # Resolve paths relative to this script so it works from any working directory
 BASE_DIR = Path(__file__).parent.parent
 
+def _get_source_from_url(url):
+    """Extract source from URL"""
+    if 'rozee.pk' in url:
+        return 'Rozee.pk'
+    elif 'discord' in url:
+        return 'Discord'
+    elif 'palantir' in url:
+        return 'Palantir'
+    elif 'figma' in url:
+        return 'Figma'
+    elif 'github' in url:
+        return 'Github'
+    elif 'mustakbil' in url:
+        return 'Mustakbil'
+    elif 'netflix' in url:
+        return 'Netflix'
+    elif 'dropbox' in url:
+        return 'Dropbox'
+    else:
+        return 'Other'
+
 def analyze_jobs():
     file_path = BASE_DIR / 'data' / 'final' / 'jobs.csv'
     if not os.path.exists(file_path):
@@ -14,6 +35,10 @@ def analyze_jobs():
 
     df = pd.read_csv(file_path)
     print(f"Loaded {len(df)} jobs.")
+    
+    # Add Source column if it doesn't exist
+    if 'Source' not in df.columns:
+        df['Source'] = df['Job URL'].apply(_get_source_from_url)
 
     # 1. Top skills appearing most often
     # Since explicit skills might be missing from JSON-LD, we extract from description.
@@ -49,12 +74,20 @@ def analyze_jobs():
     # 5. Most common job titles or role families
     titles = df['Job title'].fillna('Unknown').value_counts().head(5)
 
+    # 6. Breakdown by Source
+    source_counts = df['Source'].fillna('Unknown').value_counts()
+
     # Generate Markdown Report
     os.makedirs(BASE_DIR / 'docs', exist_ok=True)
     with open(BASE_DIR / 'docs' / 'report.md', 'w') as f:
-        f.write("# Rozee.pk Job Market Analysis Report\n\n")
+        f.write("# Global Job Market Analysis Report\n\n")
         f.write("## Overview\n")
-        f.write(f"Analyzed {len(df)} job postings from Rozee.pk.\n\n")
+        f.write(f"Analyzed {len(df)} job postings from 5 diverse global sources.\n\n")
+
+        f.write("## Jobs by Source\n")
+        for src, count in source_counts.items():
+            f.write(f"- **{src}**: {count} jobs\n")
+        f.write("\n")
 
         f.write("## Top Skills in Demand\n")
         for skill, count in top_skills.items():
@@ -77,7 +110,7 @@ def analyze_jobs():
 
         f.write("## Most Common Job Titles\n")
         for title, count in titles.items():
-            f.write(f"- {title}: {count} posings\n")
+            f.write(f"- {title}: {count} postings\n")
         f.write("\n")
 
     print(f"Analysis saved to {BASE_DIR / 'docs' / 'report.md'}")

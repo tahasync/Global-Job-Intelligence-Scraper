@@ -1,7 +1,14 @@
-# Rozee.pk Job Market Analysis Report
+# Global Job Market Analysis Report
 
 ## Overview
-Analyzed 69 job postings from Rozee.pk.
+Analyzed 69 job postings from 5 diverse global sources.
+
+## Jobs by Source
+- **Figma**: 20 jobs
+- **Palantir**: 20 jobs
+- **Discord**: 20 jobs
+- **Rozee.pk**: 8 jobs
+- **Other**: 1 jobs
 
 ## Top Skills in Demand
 - **Python**: 17 mentions
@@ -33,9 +40,9 @@ Analyzed 69 job postings from Rozee.pk.
 Found **0** jobs catering to Interns, Juniors, or Entry-level professionals.
 
 ## Most Common Job Titles
-- Administrative Business Partner: 4 posings
-- Administrative Business Partner - Security: 4 posings
-- Senior Software Engineer: 2 posings
-- Senior Java Software Engineer: 2 posings
-- Software Engineer: 2 posings
+- Administrative Business Partner: 4 postings
+- Administrative Business Partner - Security: 4 postings
+- Senior Software Engineer: 2 postings
+- Senior Java Software Engineer: 2 postings
+- Software Engineer: 2 postings
 
