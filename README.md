@@ -1,19 +1,27 @@
 # 🚀 Global Job Intelligence Scraper
 
-An end-to-end data pipeline designed to automate job discovery and market intelligence across multiple global career portals. This project utilizes a hybrid Selenium-Scrapy architecture to target 5 diverse job sources.
+![Python](https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=white)
+![Selenium](https://img.shields.io/badge/Selenium-43B02A?logo=selenium&logoColor=white)
+![Pandas](https://img.shields.io/badge/Pandas-150458?logo=pandas&logoColor=white)
+![BeautifulSoup](https://img.shields.io/badge/BeautifulSoup-2F558C?logo=python&logoColor=white)
+![Scrapy](https://img.shields.io/badge/Scrapy-8EC63F?logo=scrapy&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-blue)
+
+An end-to-end data pipeline designed to automate job discovery and market intelligence across multiple global career portals. This project utilizes a hybrid **Selenium-Scrapy** architecture to target 5 diverse job sources.
 
 ---
 
-## 🌟 Key Features
+## ✨ Features
 
-- **Multi-Source Hybrid Extraction**: Targets 5 diverse career portals (**Rozee.pk**, **Discord**, **Palantir**, **Figma**, **Elastic**).
-- **Universal ATS Support**: Generalized to handle **Lever** and **Greenhouse** platforms alongside custom scrapers.
-- **Intelligent Parsing**: Primarily utilizes `application/ld+json` (JSON-LD) for high-accuracy extraction with CSS fallbacks.
-- **Automated Analysis**: Generates comprehensive market reports using **Pandas**, highlighting top skills and hiring trends across all sources.
+- **🌍 Multi-Source Extraction** — Targets 5 diverse career portals (Rozee.pk, Discord, Palantir, Figma, Elastic)
+- **🧩 Universal ATS Support** — Handles Lever and Greenhouse platforms alongside custom scrapers
+- **📄 Intelligent Parsing** — Uses `application/ld+json` (JSON-LD) for high-accuracy extraction with CSS fallbacks
+- **📊 Automated Analysis** — Generates comprehensive market reports with Pandas, highlighting top skills and hiring trends
+- **🛡️ Ethical Crawling** — Respectful delays, public data only, no personal data collection
 
 ---
 
-## 🛠️ Project Architecture
+## 🏗️ Architecture
 
 ```text
 Global Job Intelligence Scraper/
@@ -33,6 +41,19 @@ Global Job Intelligence Scraper/
 
 ---
 
+## 🛠️ Tech Stack
+
+| Tool | Purpose |
+|------|---------|
+| **Python** | Core language |
+| **Selenium** | Browser automation for job URL discovery |
+| **Scrapy** | High-concurrency data extraction |
+| **BeautifulSoup** | HTML parsing fallback |
+| **Pandas** | Data analysis and report generation |
+| **uv** | Modern Python package manager |
+
+---
+
 ## ⚙️ Prerequisites
 
 - **Python 3.11+**
@@ -41,42 +62,30 @@ Global Job Intelligence Scraper/
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Setup
 
-### 1. Installation
-
-Clone the repository and sync dependencies using `uv`:
+### 1. Clone & Install
 
 ```bash
+git clone https://github.com/mtahanaeem/Global-Job-Intelligence-Scraper.git
+cd Global-Job-Intelligence-Scraper
 uv sync
 ```
 
-### 2. Running the Pipeline
+### 2. Run the Pipeline
 
-The pipeline is executed in three logical phases:
-
-#### **Phase 1: Discovery (Selenium)**
-
-Collect job URLs from 5 diverse global sources.
-
+**Phase 1 — Discovery (Selenium):**
 ```bash
 uv run python selenium/link_collector.py
 ```
 
-#### **Phase 2: Extraction (Scrapy)**
-
-Crawl individual job pages and parse details.
-*Note: The spider is configured with `allowed_domains` to filter out problematic tracking redirects.*
-
+**Phase 2 — Extraction (Scrapy):**
 ```bash
 cd scrapy_project
 uv run python -m scrapy crawl jobs -o ../data/final/jobs.csv
 ```
 
-#### **Phase 3: Intelligence (Pandas)**
-
-Process the raw data and generate a professional market report.
-
+**Phase 3 — Intelligence (Pandas):**
 ```bash
 cd analysis
 uv run python analyze.py
@@ -84,23 +93,32 @@ uv run python analyze.py
 
 ---
 
-## 📊 Market Intelligence
+## 📈 Market Intelligence
 
-After running the pipeline, a detailed report is generated at `docs/report.md`. This report covers:
+After running the pipeline, a detailed report is generated at `docs/report.md` covering:
 
 - ✅ **Top 10 In-Demand Skills**
 - ✅ **Regional Hotspots** (Top Cities)
 - ✅ **Leading Employers** in the Software Sector
-- ✅ **Entry-Level Availability** (Internships/Junior roles)
+- ✅ **Entry-Level Availability** (Internships / Junior roles)
 
 ---
 
 ## 🛡️ Compliance & Ethics
 
-- **Respectful Crawling**: Configured with a `DOWNLOAD_DELAY` to prevent server strain.
-- **Public Data Only**: Scrapes only publicly accessible job listings.
-- **Privacy First**: No personal data or login credentials are required or processed.
+- **Respectful Crawling** — Configured with a `DOWNLOAD_DELAY` to prevent server strain
+- **Public Data Only** — Scrapes only publicly accessible job listings
+- **Privacy First** — No personal data or login credentials are required or processed
 
 ---
 
-*Created for University Assignment 1 - Focused on Web Intelligence and Data Engineering.*
+## 👤 Author
+
+**Muhammad Taha Naeem**
+
+- 📧 muhamadtahanaeem.pro@gmail.com
+- 🐙 [mtahanaeem](https://github.com/mtahanaeem)
+
+---
+
+*Created for University Assignment 1 — Web Intelligence and Data Engineering*
