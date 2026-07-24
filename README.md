@@ -1,124 +1,42 @@
-# 🚀 Global Job Intelligence Scraper
+# Global Job Intelligence Scraper
 
-![Python](https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=white)
-![Selenium](https://img.shields.io/badge/Selenium-43B02A?logo=selenium&logoColor=white)
-![Pandas](https://img.shields.io/badge/Pandas-150458?logo=pandas&logoColor=white)
-![BeautifulSoup](https://img.shields.io/badge/BeautifulSoup-2F558C?logo=python&logoColor=white)
-![Scrapy](https://img.shields.io/badge/Scrapy-8EC63F?logo=scrapy&logoColor=white)
-![License](https://img.shields.io/badge/License-MIT-blue)
+A 3-phase Python pipeline that uses Selenium (URL discovery) + Scrapy (JSON-LD extraction with CSS fallbacks) + Pandas (market analysis) to scrape job postings from 5 online sources and generate a Markdown report of top skills, cities, companies, and entry-level opportunities.
 
-An end-to-end data pipeline designed to automate job discovery and market intelligence across multiple global career portals. This project utilizes a hybrid **Selenium-Scrapy** architecture to target 5 diverse job sources.
+## What it does
 
----
+Phase 1 (Selenium) opens Chrome headless, scrolls for lazy-loaded listings, and collects job detail URLs from Rozee.pk, Discord (Greenhouse ATS), Palantir (Lever ATS), Figma, and Mustakbil. Phase 2 (Scrapy) reads those URLs, parses `application/ld+json` (JSON-LD) structured data with CSS selector fallbacks for each field, and outputs clean job records. Phase 3 (Pandas) analyzes the extracted data — skill keyword matching, location/company frequency, entry-level detection — and writes `docs/report.md` with market insights.
 
-## ✨ Features
+## Tech stack
 
-- **🌍 Multi-Source Extraction** — Targets 5 diverse career portals (Rozee.pk, Discord, Palantir, Figma, Elastic)
-- **🧩 Universal ATS Support** — Handles Lever and Greenhouse platforms alongside custom scrapers
-- **📄 Intelligent Parsing** — Uses `application/ld+json` (JSON-LD) for high-accuracy extraction with CSS fallbacks
-- **📊 Automated Analysis** — Generates comprehensive market reports with Pandas, highlighting top skills and hiring trends
-- **🛡️ Ethical Crawling** — Respectful delays, public data only, no personal data collection
+- Python 3.11+, Selenium (Chrome WebDriver), Scrapy, Pandas, `w3lib` (HTML tag removal)
+- Package manager: `uv`
 
----
+## Features
 
-## 🏗️ Architecture
+- **Multi-source extraction** — Rozee.pk, Discord (Greenhouse), Palantir (Lever), Figma, Mustakbil
+- **ATS-agnostic parsing** — Handles Greenhouse and Lever ATS patterns; JSON-LD extraction with CSS fallbacks
+- **Market analysis** — Top skills, cities, employers, entry-level availability
+- **Sample output** — `docs/report.md` shows 69 job records with Python as top skill (17 mentions)
 
-```text
-Global Job Intelligence Scraper/
-├── selenium/            # Phase 1: Browser automation for URL discovery
-│   └── link_collector.py
-├── scrapy_project/      # Phase 2: High-concurrency job data extraction
-│   └── scraper/
-│       └── spiders/
-│           └── jobs_spider.py
-├── analysis/           # Phase 3: Data processing and insight generation
-│   └── analyze.py
-├── data/               # Persistent storage for raw and final datasets
-│   ├── raw/
-│   └── final/
-└── docs/               # Generated reports and documentation
-```
-
----
-
-## 🛠️ Tech Stack
-
-| Tool | Purpose |
-|------|---------|
-| **Python** | Core language |
-| **Selenium** | Browser automation for job URL discovery |
-| **Scrapy** | High-concurrency data extraction |
-| **BeautifulSoup** | HTML parsing fallback |
-| **Pandas** | Data analysis and report generation |
-| **uv** | Modern Python package manager |
-
----
-
-## ⚙️ Prerequisites
-
-- **Python 3.11+**
-- **uv** (Modern Python package manager)
-- **Chrome/ChromeDriver** (For Selenium phase)
-
----
-
-## 🚀 Setup
-
-### 1. Clone & Install
+## Setup
 
 ```bash
-git clone https://github.com/mtahanaeem/Global-Job-Intelligence-Scraper.git
+git clone https://github.com/tahasync/Global-Job-Intelligence-Scraper.git
 cd Global-Job-Intelligence-Scraper
 uv sync
-```
 
-### 2. Run the Pipeline
-
-**Phase 1 — Discovery (Selenium):**
-```bash
+# Phase 1: URL discovery
 uv run python selenium/link_collector.py
+
+# Phase 2: Job extraction
+cd scrapy_project && uv run python -m scrapy crawl jobs -o ../data/final/jobs.csv
+
+# Phase 3: Market analysis
+cd analysis && uv run python analyze.py
 ```
 
-**Phase 2 — Extraction (Scrapy):**
-```bash
-cd scrapy_project
-uv run python -m scrapy crawl jobs -o ../data/final/jobs.csv
-```
+## Status
 
-**Phase 3 — Intelligence (Pandas):**
-```bash
-cd analysis
-uv run python analyze.py
-```
-
----
-
-## 📈 Market Intelligence
-
-After running the pipeline, a detailed report is generated at `docs/report.md` covering:
-
-- ✅ **Top 10 In-Demand Skills**
-- ✅ **Regional Hotspots** (Top Cities)
-- ✅ **Leading Employers** in the Software Sector
-- ✅ **Entry-Level Availability** (Internships / Junior roles)
-
----
-
-## 🛡️ Compliance & Ethics
-
-- **Respectful Crawling** — Configured with a `DOWNLOAD_DELAY` to prevent server strain
-- **Public Data Only** — Scrapes only publicly accessible job listings
-- **Privacy First** — No personal data or login credentials are required or processed
-
----
-
-## 👤 Author
-
-**Muhammad Taha Naeem**
-
-- 📧 muhamadtahanaeem.pro@gmail.com
-- 🐙 [mtahanaeem](https://github.com/mtahanaeem)
-
----
+**Academic project — complete.** Scrapes 5 real job sources with working Selenium + Scrapy integration. Generated report included. Note: `items.py` in the Scrapy project is empty (unused); `pipelines.py` and `middlewares.py` are default Scrapy boilerplate.
 
 *Created for University Assignment 1 — Web Intelligence and Data Engineering*
